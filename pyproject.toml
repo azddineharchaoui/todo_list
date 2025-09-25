@@ -1,0 +1,13 @@
+[project]
+name = "todo-list"
+version = "0.1.0"
+description = "A simple todo list app using tkinter using python and sqlalchemy"
+authors = ["Azeddine Harchaoui <azeddineharchaoui1@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = ">=3.7,<4.0"
+tkinter = "*"
+sqlalchemy = "*"
+psycopg2-binary = "*"
+emoji = "*"
+python-dotenv = "*"
