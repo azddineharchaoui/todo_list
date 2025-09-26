@@ -41,14 +41,14 @@ class AppToDo:
         
         self.fenetre = tk.Tk()
         self.fenetre.title("📋 Ma liste de taches")
-        self.fenetre.geometry("960x640")
+        self.fenetre.geometry("1300x800")
         self.fenetre.configure(bg='#f0f0f0')
         
-        self.fenetre.resizable(False, False)
+        self.fenetre.resizable(True, True)
         
-        self.font_titre = font.Font(family="Arial", size=14, weight="bold")
-        self.font_normale = font.Font(family="Arial", size=11, weight="bold")
-        self.font_petite = font.Font(family="Arial", size=9, weight="bold")
+        self.font_titre = font.Font(family="Verdana", size=14, weight="bold")
+        self.font_normale = font.Font(family="Verdana", size=11, weight="bold")
+        self.font_petite = font.Font(family="Verdana", size=10, weight="bold")
         self.fenetre.option_add("*Dialog.msg.font", self.font_titre)
         self.fenetre.option_add("*Dialog.button.font", self.font_titre)
         
@@ -56,9 +56,6 @@ class AppToDo:
         self.priorite_selectionnee = tk.StringVar(value="Normale")
         self.tache_selectionnee = None
         self.arbre_actuel = None
-        
-        self.emoji_images = {}
-        self.load_emoji_images()
         
         self.creer_interface()
         self.rafraichir_liste()
@@ -74,63 +71,6 @@ class AppToDo:
         except Exception as e:
             print(f"Info: {e}")
     
-    def get_emoji_text(self, emoji_name):
-        """Return emoji character directly"""
-        emoji_map = {
-            'checkmark': '✅',
-            'check_mark': '✅',
-            'cross': '❌',
-            'warning': '⚠️',
-            'clipboard': '📋',
-            'wastebasket': '🗑️',
-            'counterclockwise_arrows_button': '🔄',
-            'OK_hand': '👌',
-            'hourglass_not_done': '⏳',
-            'red_circle': '🔴',
-            'yellow_circle': '🟡',
-            'green_circle': '🟢',
-            'cross_mark': '❌',
-            'police_car_light': '🚨',
-            'party_popper': '🎉',
-            'trash': '🗑️'
-        }
-        return emoji_map.get(emoji_name.replace(':', ''), emoji_name)
-    
-    def load_emoji_images(self):
-        emoji_chars = {
-            'checkmark': '✅',
-            'cross': '❌',
-            'warning': '⚠️',
-            'clipboard': '📋',
-            'plus': '➕',
-            'wastebasket': '🗑️',
-            'refresh': '🔄',
-            'ok_hand': '👌',
-            'hourglass': '⏳',
-            'red_circle': '🔴',
-            'yellow_circle': '🟡',
-            'green_circle': '🟢',
-            'cross_mark': '❌',
-            'police': '🚨',
-            'party': '🎉',
-            'left_arrow': '⬅️',
-            'right_arrow': '➡️'
-        }
-        
-        for name, char in emoji_chars.items():
-            self.emoji_images[name] = self.create_emoji_image(char, 16)
-    
-    def create_emoji_image(self, emoji_char, size=16):
-        try:
-            pil_font = ImageFont.truetype("seguiemj.ttf", size=int(round(size*72/96, 0)))
-            im = Image.new("RGBA", (size, size), (255, 255, 255, 0))
-            draw = ImageDraw.Draw(im)
-            draw.text((size/2, size/2), emoji_char, embedded_color=True, font=pil_font, anchor="mm")
-            return ImageTk.PhotoImage(im)
-        except Exception as e:
-            print(f"Error creating emoji image for {emoji_char}: {e}")
-            return None
-    
     def creer_interface(self):
         self.fenetre.grid_columnconfigure(0, weight=1)
         self.fenetre.grid_columnconfigure(1, weight=1)
@@ -144,101 +84,154 @@ class AppToDo:
                         font=self.font_titre, fg='white', bg='#2c3e50')
         titre.pack(expand=True)
 
-        cadre_ajout = tk.Frame(self.fenetre, bg='#ecf0f1', relief='raised', bd=2)
-        cadre_ajout.grid(row=1, column=0, columnspan=3, sticky='ew', padx=10, pady=10)
-
-        label_section = tk.Label(cadre_ajout, text="➕ Ajouter une nouvelle tâche", 
-                                font=self.font_titre, bg='#ecf0f1', fg='#2c3e50')
-        label_section.pack(anchor='center', padx=10, pady=(10,5))
-
-        cadre_saisie = tk.Frame(cadre_ajout, bg='#ecf0f1')
-        cadre_saisie.pack(fill='x', padx=10, pady=5)
-
-        tk.Label(cadre_saisie, text="Description:", font=self.font_normale, bg='#ecf0f1', fg='#2c3e50').pack(anchor='center')
-
-        # Container for centered input
-        cadre_input = tk.Frame(cadre_saisie, bg='#ecf0f1')
-        cadre_input.pack(expand=True, fill='x', pady=5)
+        cadre_gauche = tk.Frame(self.fenetre, bg="#34badb", relief='raised', bd=2, height=180)
+        cadre_gauche.grid(row=1, column=0, sticky='nsew', padx=5, pady=10)
+        cadre_gauche.grid_propagate(False)  
+        self.charger_image_dans_cadre(cadre_gauche, "image3.jpg", "")
         
-        self.champ_tache = tk.Entry(cadre_input, textvariable=self.texte_tache, 
-                                      font=self.font_normale, width=40, relief='sunken', bd=3,
-                                      justify='center')
-        self.champ_tache.pack(expand=True, pady=2)
+        cadre_centre = tk.Frame(self.fenetre, bg="#84cfe2", relief='raised', bd=2)
+        cadre_centre.grid(row=1, column=1, sticky='nsew', padx=5, pady=10)
+        
+        label_section = tk.Label(cadre_centre, text=" AJOUTER UNE TÂCHE", 
+                                font=self.font_titre, bg="#9b2093", fg='white',
+                                relief='raised', bd=2)
+        label_section.pack(fill='x', padx=5, pady=5)
 
-        cadre_priorite = tk.Frame(cadre_ajout, bg='#ecf0f1')
-        cadre_priorite.pack(fill='x', padx=10, pady=5)
+        cadre_saisie = tk.Frame(cadre_centre, bg='#84cfe2')
+        cadre_saisie.pack(fill='both', expand=True, padx=15, pady=15)
 
-        tk.Label(cadre_priorite, text="Priorité:", font=self.font_normale, bg='#ecf0f1', fg='#2c3e50').pack(anchor='center')
+        tk.Label(cadre_saisie, text="📝 Description:", font=self.font_normale, 
+                bg='#84cfe2', fg='#2c3e50').pack(anchor='w', pady=(0,5))
 
-        priorities = [("🔴 Haute", "Haute", "#dc3545"), ("🟡 Normale", "Normale", "#fd7e14"), ("🟢 Basse", "Basse", "#28a745")]
+        self.champ_tache = tk.Entry(cadre_saisie, textvariable=self.texte_tache, 
+                                  font=self.font_normale, relief='sunken', bd=2,
+                                  bg='#84cfe2', fg='#2c3e50')
+        self.champ_tache.pack(fill='x', pady=(0,15))
 
-        cadre_radio = tk.Frame(cadre_priorite, bg='#ecf0f1')
-        cadre_radio.pack(anchor='center')  
+        tk.Label(cadre_saisie, text="⚡ Priorité:", font=self.font_normale, 
+                bg='#84cfe2', fg='#2c3e50').pack(anchor='w', pady=(0,8))
+
+        cadre_priorites = tk.Frame(cadre_saisie, bg='#ecf0f1')
+        cadre_priorites.pack(fill='x', pady=(0,15))
+
+        priorities = [("🔴 Haute", "Haute", "#dc3545"), 
+                     ("🟡 Normale", "Normale", "#fd7e14"), 
+                     ("🟢 Basse", "Basse", "#28a745")]
 
         for texte, valeur, couleur in priorities:
-            rb = tk.Radiobutton(cadre_radio, text=texte, variable=self.priorite_selectionnee,
-                                value=valeur, bg='#ecf0f1', font=self.font_normale, 
-                                fg=couleur, selectcolor='#ecf0f1', activeforeground=couleur)
-            rb.pack(side='left', padx=15)
+            rb = tk.Radiobutton(cadre_priorites, text=texte, variable=self.priorite_selectionnee,
+                               value=valeur, bg='#84cfe2', font=self.font_petite, 
+                               fg=couleur, selectcolor='#84cfe2', activeforeground=couleur,
+                               anchor='w', activebackground='#84cfe2')
+            rb.pack(side='left', padx=0, fill='x', expand=True)
 
-        self.bouton_ajouter = tk.Button(cadre_ajout, text="➕ Ajouter la tâche", 
-                                         command=self.ajouter_tache,
-                                         bg='#27ae60', fg='white', font=self.font_normale,
-                                         relief='raised', bd=3, pady=5)
-        self.bouton_ajouter.pack(pady=10, anchor='center')
+        self.bouton_ajouter = tk.Button(cadre_saisie, text="➕ Ajouter la Tâche", 
+                                       command=self.ajouter_tache,
+                                       bg='#27ae60', fg='white', font=self.font_normale,
+                                       relief='raised', bd=2, cursor='hand2',
+                                       activebackground='#229954', activeforeground='white')
+        self.bouton_ajouter.pack(fill='x', pady=(5,0), ipady=8)
+
+        cadre_droite = tk.Frame(self.fenetre, bg="#84cfe2", relief='raised', width=280, bd=2, height=180)
+        cadre_droite.grid(row=1, column=2, sticky='nsew', padx=5, pady=10)
+        cadre_droite.grid_propagate(False) 
+
+        self.charger_image_dans_cadre(cadre_droite, "image4.jpg", "")
 
         self.creer_colonne_taches("📋 TODO", 0, '#3498db', 'todo')
         self.creer_colonne_taches("⏳ IN PROGRESS", 1, '#f39c12', 'in_progress')
         self.creer_colonne_taches("✅ DONE", 2, '#27ae60', 'done')
 
         cadre_navigation = tk.Frame(self.fenetre, bg='#f0f0f0')
-        cadre_navigation.grid(row=3, column=0, columnspan=3, sticky='ew', padx=10, pady=10)
+        cadre_navigation.grid(row=3, column=0, columnspan=3, sticky='ew', padx=5, pady=10)
 
-        self.bouton_gauche = tk.Button(cadre_navigation, text="⬅️ Précédent",
+        cadre_boutons_gauche = tk.Frame(cadre_navigation, bg='#f0f0f0')
+        cadre_boutons_gauche.pack(side='left')
+
+        self.bouton_gauche = tk.Button(cadre_boutons_gauche, text="⬅️",
                                         command=self.deplacer_gauche,
-                                        bg='#3498db', fg='white', font=self.font_normale,
+                                        bg='#3498db', fg='white', font=self.font_petite,
                                         relief='raised', bd=2)
         self.bouton_gauche.pack(side='left', padx=5)
 
-        self.bouton_droite = tk.Button(cadre_navigation, text="Suivant ➡️",
+        self.bouton_droite = tk.Button(cadre_boutons_gauche, text="➡️",
                                         command=self.deplacer_droite,
-                                        bg='#3498db', fg='white', font=self.font_normale,
+                                        bg='#3498db', fg='white', font=self.font_petite,
                                         relief='raised', bd=2)
         self.bouton_droite.pack(side='left', padx=5)
 
-        self.bouton_supprimer = tk.Button(cadre_navigation, text="🗑️ Supprimer",
+        self.bouton_supprimer = tk.Button(cadre_boutons_gauche, text="🗑️Supprimer",
                                            command=self.supprimer_tache,
-                                           bg='#e74c3c', fg='white', font=self.font_normale,
+                                           bg='#e74c3c', fg='white', font=self.font_petite,
                                            relief='raised', bd=2)
         self.bouton_supprimer.pack(side='left', padx=5)
 
+        self.bouton_downgrade_priorite = tk.Button(cadre_boutons_gauche, text="⬇️",
+                                                   command=self.diminuer_priorite,
+                                                   bg='#f39c12', fg='white', font=self.font_petite,
+                                                   relief='raised', bd=2)
+        self.bouton_downgrade_priorite.pack(side='left', padx=5)
+
+        self.bouton_upgrade_priorite = tk.Button(cadre_boutons_gauche, text="⬆️",
+                                                 command=self.augmenter_priorite,
+                                                 bg='#e67e22', fg='white', font=self.font_petite,
+                                                 relief='raised', bd=2)
+        self.bouton_upgrade_priorite.pack(side='left', padx=5)
+
         self.bouton_rafraichir = tk.Button(cadre_navigation, text="🔄 Actualiser",
                                             command=self.rafraichir_liste,
-                                            bg='#9b59b6', fg='white', font=self.font_normale,
+                                            bg='#9b59b6', fg='white', font=self.font_petite,
                                             relief='raised', bd=2)
         self.bouton_rafraichir.pack(side='right', padx=5)
-
         self.fenetre.bind('<Return>', lambda event: self.ajouter_tache())
+
+    def charger_image_dans_cadre(self, parent, nom_image, titre):
+        try:
+            img = Image.open(nom_image)
+            cadre_width = 400 
+            cadre_height = 260
+            img = img.resize((cadre_width, cadre_height), Image.Resampling.LANCZOS)
+            if nom_image == "image3.jpg":
+                self.img_gauche = ImageTk.PhotoImage(img)
+                image_ref = self.img_gauche
+            else:
+                self.img_droite = ImageTk.PhotoImage(img)
+                image_ref = self.img_droite
+            
+            label_img = tk.Label(parent, image=image_ref, bg='#ecf0f1', bd=0, highlightthickness=0)
+            label_img.pack(fill='both', expand=True, padx=0, pady=0)
+        except Exception as e:
+            print(f"Erreur lors du chargement de l'image {nom_image}: {e}")
+            label_placeholder = tk.Label(parent, 
+                                       text=f"Image\n{nom_image}\nnon trouvée", 
+                                       bg='#bdc3c7', font=self.font_petite,
+                                       justify='center', bd=0, highlightthickness=0)
+            label_placeholder.pack(fill='both', expand=True, padx=0, pady=0)
 
     def creer_colonne_taches(self, titre, colonne, couleur, statut):
         cadre_colonne = tk.Frame(self.fenetre, bg='#ecf0f1', relief='raised', bd=2)
         cadre_colonne.grid(row=2, column=colonne, sticky='nsew', padx=5, pady=(0,10))
 
         label_titre = tk.Label(cadre_colonne, text=titre, 
-                               font=self.font_normale, bg=couleur, fg='white',
-                               relief='raised', bd=2)
+                            font=self.font_titre, bg=couleur, fg='white',
+                            relief='raised', bd=2)
         label_titre.pack(fill='x', padx=5, pady=5)
 
         colonnes = ('ID', 'Description', 'Date')
-        treeview = ttk.Treeview(cadre_colonne, columns=colonnes, show='headings', height=15)
+        
+        style = ttk.Style()
+        style.configure("Custom.Treeview", font=self.font_petite) 
+        style.configure("Custom.Treeview.Heading", font=self.font_normale) 
+        
+        treeview = ttk.Treeview(cadre_colonne, columns=colonnes, show='headings', height=15, style="Custom.Treeview")
 
         treeview.heading('ID', text='ID')
-        treeview.heading('Description', text='Description')
+        treeview.heading('Description', text='Description')  
         treeview.heading('Date', text='Date')
 
-        treeview.column('ID', width=20, stretch=tk.NO)
-        treeview.column('Description', width=190, stretch=tk.NO)
-        treeview.column('Date', width=65, stretch=tk.NO)
+        treeview.column('ID', width=40, stretch=tk.NO)
+        treeview.column('Description', width=250, stretch=tk.YES)
+        treeview.column('Date', width=100, stretch=tk.NO)
 
         treeview.tag_configure("high", background="#ffcccb", foreground="#8b0000")
         treeview.tag_configure("medium", background="#ffd580", foreground="#cc5500")
@@ -251,6 +244,8 @@ class AppToDo:
         scrollbar.pack(side='right', fill='y', pady=5, padx=(0,5))
 
         treeview.bind('<ButtonRelease-1>', self.on_tache_select)
+        treeview.bind('<Motion>', self.show_full_description)
+        treeview.bind('<Leave>', self.hide_tooltip_on_leave) 
 
         if statut == 'todo':
             self.arbre_todo = treeview
@@ -259,6 +254,56 @@ class AppToDo:
         elif statut == 'done':
             self.arbre_done = treeview
     
+    def show_full_description(self, event):
+        widget = event.widget
+        item_id = widget.identify_row(event.y)
+        if hasattr(self, 'current_tooltip') and self.current_tooltip:
+            try:
+                self.current_tooltip.destroy()
+                self.current_tooltip = None
+                self.current_tooltip_item = None
+            except:
+                pass
+        if not item_id:
+            return
+        item = widget.item(item_id)
+        task_id = item['values'][0]
+        try:
+            tache = self.session.query(Tache).filter(Tache.id == task_id).first()
+            if tache:
+                description = tache.description
+                if len(description) > 30: 
+                    tooltip = tk.Toplevel(widget)
+                    tooltip.wm_overrideredirect(True)
+                    tooltip.wm_geometry(f"+{event.x_root + 10}+{event.y_root + 10}")
+                    tooltip.configure(bg="#ffffcc")
+                    label = tk.Label(tooltip, text=description, justify='left', 
+                                   background="#ffffcc", relief="solid", borderwidth=1,
+                                   font=self.font_petite, wraplength=300, padx=8, pady=6)
+                    label.pack()
+                    self.current_tooltip = tooltip
+                    self.current_tooltip_item = item_id
+                    def hide_tooltip():
+                        try:
+                            if hasattr(self, 'current_tooltip') and self.current_tooltip == tooltip:
+                                self.current_tooltip.destroy()
+                                self.current_tooltip = None
+                                self.current_tooltip_item = None
+                        except:
+                            pass
+                    tooltip.after(4000, hide_tooltip)      
+        except Exception as e:
+            print(f"Error showing full description: {e}")
+
+    def hide_tooltip_on_leave(self, event):
+        if hasattr(self, 'current_tooltip') and self.current_tooltip:
+            try:
+                self.current_tooltip.destroy()
+                self.current_tooltip = None
+                self.current_tooltip_item = None
+            except:
+                pass
+
     def on_tache_select(self, event):
         widget = event.widget
         selection = widget.selection()
@@ -266,7 +311,6 @@ class AppToDo:
             item = widget.item(selection[0])
             self.tache_selectionnee = item['values'][0]
             self.arbre_actuel = widget
-            
             for tree in [self.arbre_todo, self.arbre_progress, self.arbre_done]:
                 if tree != widget:
                     tree.selection_remove(tree.selection())
@@ -287,17 +331,11 @@ class AppToDo:
                 statut='todo',
                 date_creation=datetime.now()
             )
-            
             self.session.add(nouvelle_tache)
             self.session.commit()
-            
             self.texte_tache.set("")
             self.priorite_selectionnee.set("Normale")
-            
             self.rafraichir_liste()
-            
-            messagebox.showinfo("Succès", f"{self.get_emoji_text('OK_hand')} Tâche ajoutée avec succès!")
-            
         except Exception as e:
             self.session.rollback()  
             messagebox.showerror("Erreur", f"Impossible d'ajouter la tâche:\n{str(e)}")
@@ -306,13 +344,11 @@ class AppToDo:
         if not self.tache_selectionnee:
             messagebox.showwarning("Attention", "Veuillez sélectionner une tâche à déplacer!")
             return
-        
         try:
             tache = self.session.query(Tache).filter(Tache.id == self.tache_selectionnee).first()
             if not tache:
                 messagebox.showerror("Erreur", "Tâche non trouvée!")
                 return
-            
             if tache.statut == 'in_progress':
                 tache.statut = 'todo'
                 tache.terminee = False
@@ -320,13 +356,9 @@ class AppToDo:
                 tache.statut = 'in_progress'
                 tache.terminee = False
             else:
-                messagebox.showinfo("Information", "Cette tâche est déjà au début!")
                 return
-            
             self.session.commit()
             self.rafraichir_liste()
-            messagebox.showinfo("Succès", "Tâche déplacée avec succès!")
-            
         except Exception as e:
             self.session.rollback()
             messagebox.showerror("Erreur", f"Impossible de déplacer la tâche:\n{str(e)}")
@@ -335,26 +367,20 @@ class AppToDo:
         if not self.tache_selectionnee:
             messagebox.showwarning("Attention", "Veuillez sélectionner une tâche à déplacer!")
             return
-        
         try:
             tache = self.session.query(Tache).filter(Tache.id == self.tache_selectionnee).first()
             if not tache:
                 messagebox.showerror("Erreur", "Tâche non trouvée!")
                 return
-            
             if tache.statut == 'todo':
                 tache.statut = 'in_progress'
             elif tache.statut == 'in_progress':
                 tache.statut = 'done'
                 tache.terminee = True
             else:
-                messagebox.showinfo("Information", "Cette tâche est déjà terminée!")
                 return
-            
             self.session.commit()
             self.rafraichir_liste()
-            messagebox.showinfo("Succès", "Tâche déplacée avec succès!")
-            
         except Exception as e:
             self.session.rollback()
             messagebox.showerror("Erreur", f"Impossible de déplacer la tâche:\n{str(e)}")
@@ -367,42 +393,24 @@ class AppToDo:
                 self.arbre_progress.delete(item)
             for item in self.arbre_done.get_children():
                 self.arbre_done.delete(item)
-            
             taches = self.session.query(Tache).order_by(Tache.date_creation.desc()).all()
-            
             for tache in taches:
                 date_formatee = tache.date_creation.strftime("%d/%m/%Y")
-                
                 if tache.priorite == 'Haute':
                     tag = 'high'
-                    priorite_display = "🔴 Haute"
                 elif tache.priorite == 'Normale':
                     tag = 'medium'
-                    priorite_display = "🟡 Normale"
                 elif tache.priorite == 'Basse':
                     tag = 'low'
-                    priorite_display = "🟢 Basse"
                 else:
                     tag = ''
-                    priorite_display = tache.priorite
-
                 description_lines = self.split_description(tache.description)
-                
-                if hasattr(tache, 'statut'):
-                    if tache.statut == 'todo':
-                        target_tree = self.arbre_todo
-                    elif tache.statut == 'in_progress':
-                        target_tree = self.arbre_progress
-                    elif tache.statut == 'done':
-                        target_tree = self.arbre_done
-                    else:
-                        if tache.terminee:
-                            target_tree = self.arbre_done
-                            tache.statut = 'done'
-                        else:
-                            target_tree = self.arbre_todo
-                            tache.statut = 'todo'
-                        self.session.commit()
+                if tache.statut == 'todo':
+                    target_tree = self.arbre_todo
+                elif tache.statut == 'in_progress':
+                    target_tree = self.arbre_progress
+                elif tache.statut == 'done':
+                    target_tree = self.arbre_done
                 else:
                     if tache.terminee:
                         target_tree = self.arbre_done
@@ -411,69 +419,91 @@ class AppToDo:
                         target_tree = self.arbre_todo
                         tache.statut = 'todo'
                     self.session.commit()
-
                 item_id = target_tree.insert('', 'end', values=(
                     tache.id,
                     description_lines,
                     date_formatee
                 ), tags=(tag,))
-                
         except Exception as e:
             messagebox.showerror("Erreur", f"❌ Impossible de charger les tâches:\n{str(e)}")
 
-    def split_description(self, description, max_length=30):
+    def split_description(self, description, max_length=35):
         if len(description) <= max_length:
             return description
-        
-        words = description.split()
-        line1 = ""
-        line2 = ""
-        
-        for word in words:
-            if len(line1 + " " + word) <= max_length:
-                if line1:
-                    line1 += " " + word
-                else:
-                    line1 = word
-            else:
-                if line2:
-                    line2 += " " + word
-                else:
-                    line2 = word
-        
-        if line2:
-            return line1 + "\n" + line2
-        return line1
+        truncated = description[:max_length]
+        last_space = truncated.rfind(' ')
+        if last_space > max_length * 0.7:  
+            return description[:last_space] + "..."
+        else:
+            return description[:max_length-3] + "..."
     
     def supprimer_tache(self):
         if not self.tache_selectionnee:
             messagebox.showwarning("Attention", "Veuillez sélectionner une tâche à supprimer!")
             return
-        
         reponse = messagebox.askyesno("Confirmation", 
                                      "Êtes-vous sûr de vouloir supprimer cette tâche?\n"
                                      "Cette action est irréversible!")
         if not reponse:
             return
-        
         try:
             tache = self.session.query(Tache).filter(Tache.id == self.tache_selectionnee).first()
-            
             if tache:
                 self.session.delete(tache)
                 self.session.commit()
-                
                 self.tache_selectionnee = None
                 self.arbre_actuel = None
                 self.rafraichir_liste()
-                
                 messagebox.showinfo("Succès", "Tâche supprimée avec succès!")
             else:
                 messagebox.showerror("Erreur", "Tâche non trouvée!")
-                
         except Exception as e:
             self.session.rollback()
             messagebox.showerror("Erreur", f"Impossible de supprimer la tâche:\n{str(e)}")
+    
+    def diminuer_priorite(self):
+        if not self.tache_selectionnee:
+            messagebox.showwarning("Attention", "Veuillez sélectionner une tâche pour modifier sa priorité!")
+            return
+        try:
+            tache = self.session.query(Tache).filter(Tache.id == self.tache_selectionnee).first()
+            if not tache:
+                messagebox.showerror("Erreur", "Tâche non trouvée!")
+                return
+            if tache.priorite == 'Haute':
+                nouvelle_priorite = 'Normale'
+            elif tache.priorite == 'Normale':
+                nouvelle_priorite = 'Basse'
+            else:
+                return
+            tache.priorite = nouvelle_priorite
+            self.session.commit()
+            self.rafraichir_liste()        
+        except Exception as e:
+            self.session.rollback()
+            messagebox.showerror("Erreur", f"Impossible de modifier la priorité de la tâche:\n{str(e)}")
+    
+    def augmenter_priorite(self):
+        if not self.tache_selectionnee:
+            messagebox.showwarning("Attention", "Veuillez sélectionner une tâche pour modifier sa priorité!")
+            return
+        try:
+            tache = self.session.query(Tache).filter(Tache.id == self.tache_selectionnee).first()
+            if not tache:
+                messagebox.showerror("Erreur", "Tâche non trouvée!")
+                return
+            if tache.priorite == 'Basse':
+                nouvelle_priorite = 'Normale'
+            elif tache.priorite == 'Normale':
+                nouvelle_priorite = 'Haute'
+            else: 
+                return
+            tache.priorite = nouvelle_priorite
+            self.session.commit()
+            self.rafraichir_liste()
+        except Exception as e:
+            self.session.rollback()
+            messagebox.showerror("Erreur", f"Impossible de modifier la priorité de la tâche:\n{str(e)}")
     
     def fermer_application(self):
         try:
@@ -490,7 +520,6 @@ class AppToDo:
 if __name__ == "__main__":
     print("=" * 30)
     print(" Démarrage du todo-list")
-    
     try:
         import psycopg2
         print("👌 PostgreSQL fonctionne , c bon !")
@@ -498,7 +527,6 @@ if __name__ == "__main__":
         print("🚨 PostgreSQL driver manquant!")
         input("Appuyez sur Entrée pour fermer")
         exit(1)
-    
     try:
         app = AppToDo()
         app.demarrer()
